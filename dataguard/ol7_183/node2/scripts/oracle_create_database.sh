@@ -108,6 +108,7 @@ DUPLICATE TARGET DATABASE
 exit;
 EOF
 
+
 echo "******************************************************************************"
 echo "Enable the broker." `date`
 echo "******************************************************************************"
@@ -132,3 +133,33 @@ SHOW DATABASE ${NODE2_DB_UNIQUE_NAME};
 
 EXIT;
 EOF
+
+echo "******************************************************************************"
+echo "Enable flashback mode on database using broker" `date`
+echo "******************************************************************************"
+dgmgrl sys/${SYS_PASSWORD}@${NODE2_DB_UNIQUE_NAME} <<EOF
+
+	edit database ${NODE2_DB_UNIQUE_NAME} set state='APPLY-OFF';
+	sql "alter database flashback on";
+	edit database ${NODE2_DB_UNIQUE_NAME} set state='APPLY-ON';
+	
+EXIT;
+EOF
+
+echo "******************************************************************************"
+echo "Sleep for get correct status from Data Guard " `date`
+echo "******************************************************************************"
+sleep 300
+
+echo "******************************************************************************"
+echo "Check configuration " `date`
+echo "******************************************************************************"
+dgmgrl sys/${SYS_PASSWORD}@${NODE2_DB_UNIQUE_NAME} <<EOF
+
+	show configuration;
+	show database ${NODE1_DB_UNIQUE_NAME}
+	show database ${NODE2_DB_UNIQUE_NAME}
+	
+EXIT;
+EOF
+
